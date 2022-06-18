@@ -1,0 +1,33 @@
+---
+- name: SETUP SSH CONNECTIONS
+  hosts: "localhost"
+  become: false
+  tasks:
+  - include_vars: "../vars.yaml"
+  - name: Create .ssh directory
+    file:
+      path: "{{ lookup('env','HOME') }}/.ssh"
+      state: directory
+      mode: '0700'
+  - name: Create .ssh/sockets directory
+    file:
+      path: "{{ lookup('env','HOME') }}/.ssh/sockets"
+      state: directory
+      mode: '0755'
+  - name: Copy SSH config
+    copy:
+      src: "../files/config"
+      dest: "{{ lookup('env','HOME') }}/.ssh/config"
+      mode: '0644'
+  - name: Copy SSH public key
+    copy:
+      src: "../files/id_ed25519_nvidia.pub"
+      dest: "{{ lookup('env','HOME') }}/.ssh/id_ed25519_nvidia.pub"
+      mode: '0644'
+    no_log: true
+  - name: Copy SSH private key
+    copy:
+      src: "../files/id_ed25519_nvidia"
+      dest: "{{ lookup('env','HOME') }}/.ssh/id_ed25519_nvidia"
+      mode: '0600'
+    no_log: true

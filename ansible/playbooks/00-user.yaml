@@ -1,0 +1,35 @@
+---
+- name: ADD CONTAINER SUDOER
+  hosts: "localhost"
+  remote_user: root
+  tasks:
+  - include_vars: "../vars.yaml"
+  - name: Make sure required environment variables are set
+    assert:
+      that:
+        - lookup('env', "USERNAME") != ""
+        - lookup('env', "USER_UID") != ""
+        - lookup('env', "USER_GID") != ""
+      quiet: true
+  - name: Install sudo
+    apt:
+      name: sudo
+      state: present
+      update_cache: true
+      cache_valid_time: "{{ apt_cache_valid_time }}"
+  - name: Add group "{{ lookup('env','USERNAME') }}" (GID={{ lookup('env','USER_GID') }})
+    group:
+      name: "{{ lookup('env','USERNAME') }}"
+      gid: "{{ lookup('env','USER_GID') }}"
+  - name: Add user "{{ lookup('env','USERNAME') }}" (UID={{ lookup('env','USER_UID') }})
+    user:
+      name: "{{ lookup('env','USERNAME') }}"
+      group: "{{ lookup('env','USERNAME') }}"
+      uid: "{{ lookup('env','USER_UID') }}"
+      shell: "{{ shell }}"
+  - name: Add user "{{ lookup('env','USERNAME') }}" to sudoers
+    lineinfile:
+      path: /etc/sudoers.d/{{ lookup('env','USERNAME') }}
+      line: "{{ lookup('env','USERNAME') }} ALL=(root) NOPASSWD:ALL"
+      create: true
+      mode: '0440'

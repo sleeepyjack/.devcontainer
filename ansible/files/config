@@ -1,0 +1,12 @@
+Host *
+  AddKeysToAgent yes
+  ForwardAgent yes
+  IdentityFile ~/.ssh/id_ed25519_nvidia
+  ControlMaster auto
+  ControlPath ~/.ssh/sockets/%r@%h-%p
+  ControlPersist 600
+
+Host computelab
+    HostName computelab
+    User djuenger
+    IdentityFile id_ed25519_nvidia

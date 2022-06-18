@@ -1,0 +1,39 @@
+{
+	"name": "cuda_dev",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": { "VARIANT": "11.7.0" }
+	},
+	"runArgs": ["--gpus", "all", "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": {},
+
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"ms-vscode.cpptools",
+		"ms-vscode.cpptools-extension-pack",
+		"ionutvmi.path-autocomplete",
+		"llvm-vs-code-extensions.vscode-clangd",
+		"notskm.clang-tidy",
+		"xaver.clang-format",
+		"alefragnani.bookmarks",
+		"nvidia.nsight-vscode-edition",
+		"alefragnani.bookmarks",
+		"redhat.vscode-yaml",
+		"wakatime.vscode-wakatime",
+		"eamodio.gitlens",
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"yzhang.markdown-all-in-one"
+	],
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "gcc -v",
+
+	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "djuenger"
+}

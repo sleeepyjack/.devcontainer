@@ -1,0 +1,22 @@
+---
+- name: INSTALL APT PACKAGES
+  hosts: "localhost"
+  become: true
+  gather_facts: false
+  tasks:
+  - include_vars: "../vars.yaml"
+  - name: Install all apt packages
+    apt:
+      name: "{{ apt_packages }}"
+      state: present
+      update_cache: yes
+      cache_valid_time: "{{ apt_cache_valid_time }}"
+  - name: Update all apt packages
+    apt:
+      name: "*"
+      state: latest
+  - name: Remove unused apt packages
+    apt:
+      autoclean: yes
+      autoremove: yes
+

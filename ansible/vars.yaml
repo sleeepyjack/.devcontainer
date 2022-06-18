@@ -1,0 +1,22 @@
+---
+shell: /bin/bash
+apt_cache_valid_time: 3600
+apt_packages:
+  - curl
+  - wget
+  - tree
+  - htop
+  - git
+  - vim
+conda_home: "{{ lookup('env','HOME') }}/miniconda3"
+conda_channels:
+  - conda-forge
+  - nvidia
+conda_packages:
+  - gxx=11.2.0
+  - clang
+  - clang-tools
+  - cmake
+  - scons
+  - lit
+wakatime_api_key: "8d832dec-2115-4940-af6f-63d78435df9f"

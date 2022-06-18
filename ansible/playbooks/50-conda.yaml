@@ -1,0 +1,40 @@
+---
+- name: INSTALL CONDA AND CONDA PACKAGES
+  hosts: "localhost"
+  become: false
+  tasks:
+  - include_vars: "../vars.yaml"
+  - name: Check for existing conda installation
+    shell:
+      cmd: command -v conda >/dev/null 2>&1
+    register: conda_exists
+    failed_when: false
+    changed_when: false
+  - name: Download conda installer
+    get_url:
+      url: https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-{{ ansible_facts['machine'] }}.sh
+      dest: /tmp/conda_installer.sh
+      mode: '+x'
+  - name: Install conda
+    shell:
+      cmd: "{{ shell }} /tmp/conda_installer.sh -b -p {{ conda_home }} && {{ conda_home }}/bin/conda init  >/dev/null 2>&1"
+      creates: "{{ conda_home }}/bin/conda"
+  - name: Add conda channels
+    shell:
+      cmd: "{{ conda_home }}/bin/conda config --add channels {{ item }}"
+    register: add_conda_channel
+    changed_when: '"already in" not in add_conda_channel.stderr'
+    loop: "{{ conda_channels }}"
+  - name: Set conda channel priotity to "strict"
+    shell:
+      cmd: "{{ conda_home }}/bin/conda config --set channel_priority strict"
+    changed_when: false
+  - name: Disable conda safety checks
+    shell:
+      cmd: "{{ conda_home }}/bin/conda config --set safety_checks disabled"
+    changed_when: false
+  - name: Install and update conda packages
+    shell:
+      cmd: "{{ conda_home }}/bin/conda install -q --update-all -y {{ conda_packages | join(' ') }}"
+    register: conda_install
+    changed_when: '"All requested packages already installed." not in conda_install.stdout'
