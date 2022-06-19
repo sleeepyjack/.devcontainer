@@ -1,9 +1,6 @@
 {
 	"name": "cuda_dev",
-	"build": {
-		"dockerfile": "Dockerfile",
-		"args": { "VARIANT": "11.7.0" }
-	},
+	"image": "sleeepyjack/cuda_dev:11.7.0",
 	"runArgs": ["--gpus", "all", "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
 
 	// Set *default* container specific settings.json values on container create.
