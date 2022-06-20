@@ -8,7 +8,7 @@ FROM nvcr.io/nvidia/cuda:${VARIANT}-devel-ubuntu20.04
 RUN apt-get update && apt-get install -y ansible
 ADD ansible /ansible
 
-ARG USERNAME=user
+ARG USERNAME=djuenger
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 ARG ANSIBLE_VAULT_PASSWORD
