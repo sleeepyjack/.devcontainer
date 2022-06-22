@@ -1,8 +1,12 @@
 {
 	"name": "cuda_dev",
 	"image": "sleeepyjack/cuda_dev:11.7.0",
-	"runArgs": ["--gpus", "all", "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
+	"runArgs": ["--name", "${localWorkspaceFolderBasename}_devcontainer", "--gpus", "all", "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
 	"initializeCommand": "docker pull sleeepyjack/cuda_dev:11.7.0",
+	"postCreateCommand": "sudo chown -R djuenger:djuenger /history",
+	"mounts": [
+		"source=${localWorkspaceFolderBasename}_history,target=/history,type=volume"
+	],
 	// Set *default* container specific settings.json values on container create.
 	"settings": {},
 

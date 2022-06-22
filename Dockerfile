@@ -25,3 +25,9 @@ RUN ansible-playbook /ansible/playbooks/20-ssh.yaml
 RUN ansible-playbook /ansible/playbooks/30-git.yaml
 RUN ansible-playbook /ansible/playbooks/40-waka.yaml
 RUN ansible-playbook /ansible/playbooks/50-conda.yaml
+
+# persistent history file
+RUN sudo mkdir /history \
+    && sudo touch /history/.bash_history \
+    && sudo chown -R $USERNAME:$USERNAME /history \
+    && echo "export PROMPT_COMMAND='history -a' && export HISTFILE=/history/.bash_history" >> /home/$USERNAME/.bashrc
