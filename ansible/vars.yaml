@@ -8,7 +8,7 @@ apt_packages:
   - htop
   - git
   - vim
-conda_home: "{{ lookup('env','HOME') }}/miniconda3"
+conda_home: "/conda"
 conda_channels:
   - conda-forge
   - nvidia

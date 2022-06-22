@@ -1,7 +1,7 @@
 ---
 - name: INSTALL CONDA AND CONDA PACKAGES
   hosts: "localhost"
-  become: false
+  become: true
   tasks:
   - include_vars: "../vars.yaml"
   - name: Check for existing conda installation
@@ -19,19 +19,32 @@
     shell:
       cmd: "{{ shell }} /tmp/conda_installer.sh -b -p {{ conda_home }} && {{ conda_home }}/bin/conda init  >/dev/null 2>&1"
       creates: "{{ conda_home }}/bin/conda"
+  - name: Init conda for current user
+    shell:
+      cmd: "{{ conda_home }}/bin/conda init >/dev/null 2>&1"
+    changed_when: false
+    become: false
+  - name: Set permissions for conda directory
+    file:
+      path: "{{ conda_home }}"
+      mode: '777'
   - name: Add conda channels
     shell:
-      cmd: "{{ conda_home }}/bin/conda config --add channels {{ item }}"
+      cmd: "{{ conda_home }}/bin/conda config --system --add channels {{ item }}"
     register: add_conda_channel
     changed_when: '"already in" not in add_conda_channel.stderr'
     loop: "{{ conda_channels }}"
   - name: Set conda channel priotity to "strict"
     shell:
-      cmd: "{{ conda_home }}/bin/conda config --set channel_priority strict"
+      cmd: "{{ conda_home }}/bin/conda config --system --set channel_priority strict"
     changed_when: false
   - name: Disable conda safety checks
     shell:
-      cmd: "{{ conda_home }}/bin/conda config --set safety_checks disabled"
+      cmd: "{{ conda_home }}/bin/conda config --system --set safety_checks disabled"
+    changed_when: false
+  - name: Enable conda multithreading
+    shell:
+      cmd: "{{ conda_home }}/bin/conda config --system --set default_threads $(nproc)"
     changed_when: false
   - name: Install and update conda packages
     shell:
