@@ -5,7 +5,12 @@
 ARG VARIANT="11.7.0"
 FROM nvcr.io/nvidia/cuda:${VARIANT}-devel-ubuntu20.04
 
-RUN apt-get update && apt-get install -y ansible
+RUN apt-get update && apt-get install -y ansible locales locales-all
+
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
 ADD ansible /ansible
 
 ARG USERNAME=djuenger
