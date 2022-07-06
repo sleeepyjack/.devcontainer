@@ -13,9 +13,6 @@ jobs:
       matrix:
         variant: ["11.7.0"]
     steps:
-      - uses: actions/checkout@v2
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -29,6 +26,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
+          cache-from: type=gha
+          cache-to: type=gha
           platforms: linux/amd64,linux/arm64
           tags: sleeepyjack/cuda_dev:${{ matrix.variant }}
           build-args: |
