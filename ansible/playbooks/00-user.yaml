@@ -11,12 +11,6 @@
         - lookup('env', "USER_UID") != ""
         - lookup('env', "USER_GID") != ""
       quiet: true
-  - name: Install sudo
-    apt:
-      name: sudo
-      state: present
-      update_cache: true
-      cache_valid_time: "{{ apt_cache_valid_time }}"
   - name: Add group "{{ lookup('env','USERNAME') }}" (GID={{ lookup('env','USER_GID') }})
     group:
       name: "{{ lookup('env','USERNAME') }}"

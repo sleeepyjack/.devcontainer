@@ -1,5 +1,5 @@
 ---
-- name: INSTALL CONDA AND CONDA PACKAGES
+- name: INSTALL CONDA
   hosts: "localhost"
   become: true
   tasks:
@@ -46,8 +46,3 @@
     shell:
       cmd: "{{ conda_home }}/bin/conda config --system --set default_threads $(nproc)"
     changed_when: false
-  - name: Install and update conda packages
-    shell:
-      cmd: "{{ conda_home }}/bin/conda install -q --update-all -y {{ conda_packages | join(' ') }}"
-    register: conda_install
-    changed_when: '"All requested packages already installed." not in conda_install.stdout'
