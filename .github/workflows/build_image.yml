@@ -28,3 +28,4 @@ jobs:
           build-args: |
             "ANSIBLE_VAULT_PASSWORD=${{ secrets.ANSIBLE_VAULT_PASSWORD }}"
             "VARIANT=${{ matrix.variant }}"
+            "WAKATIME_API_KEY=${{ secrets.WAKATIME_API_KEY }}"

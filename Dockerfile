@@ -89,9 +89,9 @@ RUN echo $ANSIBLE_VAULT_PASSWORD > $ANSIBLE_VAULT_PASSWORD_FILE
 
 RUN ansible-playbook /ansible/playbooks/00-user.yaml
 USER $USERNAME
+ENV WAKATIME_API_KEY=${WAKATIME_API_KEY}
 RUN ansible-playbook /ansible/playbooks/20-ssh.yaml
 RUN ansible-playbook /ansible/playbooks/30-git.yaml
-RUN ansible-playbook /ansible/playbooks/40-waka.yaml
 RUN ansible-playbook /ansible/playbooks/50-conda.yaml
 
 # persistent history file

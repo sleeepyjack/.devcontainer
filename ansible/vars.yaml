@@ -4,4 +4,3 @@ conda_home: "/conda"
 conda_channels:
   - conda-forge
   - nvidia
-wakatime_api_key: "8d832dec-2115-4940-af6f-63d78435df9f"
