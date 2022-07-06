@@ -1,4 +1,4 @@
-name: Docker
+name: Build Docker image
 on:
   workflow_dispatch:
     branches:
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        variant: ["11.7.0", "11.6.2"]
+        variant: ["11.7.0"]
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -19,13 +19,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Build and push variant ${{ matrix.variant }}
+      - name: Build and push variant sleeepyjack/cuda_dev:${{ matrix.variant }}
         uses: docker/build-push-action@v3
         with:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: sleeepyjack/cuda_dev:${{ matrix.variant }}
           build-args: |
-            "ANSIBLE_VAULT_PASSWORD=${{ secrets.ANSIBLE_VAULT_PASSWORD }}"
+            "PASSPHRASE=${{ secrets.PASSPHRASE }}"
             "VARIANT=${{ matrix.variant }}"
-            "WAKATIME_API_KEY=${{ secrets.WAKATIME_API_KEY }}"

@@ -1,6 +1,0 @@
----
-shell: /bin/bash
-conda_home: "/conda"
-conda_channels:
-  - conda-forge
-  - nvidia

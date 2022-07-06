@@ -1,21 +1,22 @@
 
 # Use the [Choice] comment to indicate option arguments that should appear in VS Code UX. Use a comma separated list.
 #
-# [Choice] CUDA version: 11.6.2, 11.7.0
+# [Choice] CUDA version: 11.7.0
 ARG VARIANT="11.7.0"
-FROM nvcr.io/nvidia/cuda:${VARIANT}-devel-ubuntu20.04
+FROM nvcr.io/nvidia/cuda:${VARIANT}-devel-ubuntu22.04
 
-ARG DEBIAN_FRONTEND=noninteractive
-ENV TZ=Europe/Berlin
+ARG PASSPHRASE
+ADD secrets /secrets
 
-# install base packages
+ARG DEBIAN_FRONTEND noninteractive
+ENV TZ Europe/Berlin
+
+# install packages
 RUN apt-get update \
   && apt-get install -y \
-  ansible \
   sudo \
   locales \
   locales-all \
-  software-properties-common \
   curl \
   wget \
   htop \
@@ -23,20 +24,9 @@ RUN apt-get update \
   vim \
   python3 \
   python3-dev \
+  python3-pip \
   scons \
-  && rm -rf /var/lib/apt/lists/*
-
-# install g++-11
-RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test \
-  && apt-get update \
-  && apt-get install -y g++-11 \
-  && rm -rf /var/lib/apt/lists/*
-
-# install LLVM toolchain
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key \
-  | apt-key add - \
-  && apt-get update \
-  && apt-get install -y \
+  g++ \
   clang-format \
   clang-tidy \
   clang-tools \
@@ -58,44 +48,48 @@ RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key \
   llvm-runtime \
   llvm \
   python3-clang \
-  && rm -rf /var/lib/apt/lists/*
-
-# install cmake
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
-  | gpg --dearmor - \
-  | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
-  && echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' \
-  | tee /etc/apt/sources.list.d/kitware.list >/dev/null \
-  && apt-get update \
-  && rm /usr/share/keyrings/kitware-archive-keyring.gpg \
-  && apt-get install -y kitware-archive-keyring cmake \
-  && rm -rf /var/lib/apt/lists/*
+  cmake \
+  && rm -rf /var/lib/apt/lists/* \
+  && pip3 install \
+  lit
 
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-ADD ansible /ansible
-
+# create container user
 ARG USERNAME=djuenger
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-ARG ANSIBLE_VAULT_PASSWORD
-ARG ANSIBLE_VAULT_PASSWORD_FILE=/tmp/.vault_password
-ARG ANSIBLE_LOCALHOST_WARNING=false
-ARG ANSIBLE_PYTHON_INTERPRETER=auto
-
-RUN echo $ANSIBLE_VAULT_PASSWORD > $ANSIBLE_VAULT_PASSWORD_FILE
-
-RUN ansible-playbook /ansible/playbooks/00-user.yaml
+RUN groupadd --gid $USER_GID $USERNAME \
+  && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+  && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+  && chmod 0440 /etc/sudoers.d/$USERNAME
 USER $USERNAME
-ENV WAKATIME_API_KEY=${WAKATIME_API_KEY}
-RUN ansible-playbook /ansible/playbooks/20-ssh.yaml
-RUN ansible-playbook /ansible/playbooks/30-git.yaml
-RUN ansible-playbook /ansible/playbooks/50-conda.yaml
 
 # persistent history file
 RUN sudo mkdir /history \
-    && sudo touch /history/.bash_history \
-    && sudo chown -R $USERNAME:$USERNAME /history \
-    && echo "export PROMPT_COMMAND='history -a' && export HISTFILE=/history/.bash_history" >> /home/$USERNAME/.bashrc
+  && sudo touch /history/.bash_history \
+  && sudo chown -R $USERNAME:$USERNAME /history \
+  && echo "export PROMPT_COMMAND='history -a' && export HISTFILE=/history/.bash_history" >> $HOME/.bashrc
+
+# deploy wakatime API key
+RUN /secrets/secrets.py decrypt --passphrase="$PASSPHRASE" -o /tmp/wakatime_api_key.txt /secrets/wakatime_api_key.txt.gpg \
+  && echo "export WAKATIME_API_KEY=$(cat /tmp/wakatime_api_key.txt)" >> $HOME/.bashrc \
+  && rm /tmp/wakatime_api_key.txt
+
+# deploy SSH keys and config
+RUN mkdir -m 0700 $HOME/.ssh \
+  && mkdir -m 0755 $HOME/.ssh/sockets \
+  && /secrets/secrets.py decrypt --passphrase="$PASSPHRASE" -o $HOME/.ssh/config /secrets/config.gpg \
+  && chmod 0644 $HOME/.ssh/config \
+  && /secrets/secrets.py decrypt --passphrase="$PASSPHRASE" -o $HOME/.ssh/id_ed25519_nvidia /secrets/id_ed25519_nvidia.gpg \
+  && chmod 0600 $HOME/.ssh/id_ed25519_nvidia \
+  && /secrets/secrets.py decrypt --passphrase="$PASSPHRASE" -o $HOME/.ssh/id_ed25519_nvidia.pub /secrets/id_ed25519_nvidia.pub.gpg \
+  && chmod 0644 $HOME/.ssh/id_ed25519_nvidia.pub
+
+# deploy git config and GPG keys
+RUN /secrets/secrets.py decrypt --passphrase="$PASSPHRASE" -o /tmp/github_signkey.asc /secrets/github_signkey.asc.gpg \
+  && gpg --batch --pinentry-mode loopback --import /tmp/github_signkey.asc \
+  && rm /tmp/github_signkey.asc \
+  && /secrets/secrets.py decrypt --passphrase="$PASSPHRASE" -o $HOME/.gitconfig /secrets/.gitconfig.gpg
