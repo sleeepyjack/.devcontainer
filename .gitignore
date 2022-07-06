@@ -1,1 +1,3 @@
-.vault_password
+secrets/*
+!secrets/secrets.py
+!secrets/*.gpg
