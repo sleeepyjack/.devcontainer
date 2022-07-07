@@ -49,6 +49,7 @@ RUN apt-get update \
   llvm \
   python3-clang \
   cmake \
+  cmake-curses-gui \
   git-absorb \
   && rm -rf /var/lib/apt/lists/* \
   && pip3 install \
