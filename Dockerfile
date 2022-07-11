@@ -53,7 +53,8 @@ RUN apt-get update \
   git-absorb \
   && rm -rf /var/lib/apt/lists/* \
   && pip3 install \
-  lit
+  lit \
+  pre-commit
 
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
