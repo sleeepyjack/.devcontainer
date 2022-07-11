@@ -70,6 +70,10 @@ RUN groupadd --gid $USER_GID $USERNAME \
   && chmod 0440 /etc/sudoers.d/$USERNAME
 USER $USERNAME
 
+# install oh-my-bash
+RUN bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)" --unattended \
+  && echo "OSH_THEME=\"iterate\"" >> $HOME/.bashrc
+
 # persistent history file
 RUN sudo mkdir /history \
   && sudo touch /history/.bash_history \
