@@ -51,10 +51,13 @@ RUN apt-get update \
   cmake \
   cmake-curses-gui \
   git-absorb \
+  doxygen \
   && rm -rf /var/lib/apt/lists/* \
   && pip3 install \
   lit \
-  pre-commit
+  pre-commit \
+  tabulate \
+  colorama
 
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
