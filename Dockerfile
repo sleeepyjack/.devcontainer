@@ -83,6 +83,19 @@ RUN sudo mkdir /history \
   && sudo chown -R $USERNAME:$USERNAME /history \
   && echo "export PROMPT_COMMAND='history -a' && export HISTFILE=/history/.bash_history" >> $HOME/.bashrc
 
+# install GH CLI
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+  && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+  && sudo apt-get update \
+  && sudo apt-get install -y gh \
+  && sudo rm -rf /var/lib/apt/lists/* \
+  && /secrets/secrets.py decrypt --passphrase="$PASSPHRASE" -o /tmp/github_api_key.txt /secrets/github_api_key.txt.gpg \
+  && gh auth login --with-token < /tmp/github_api_key.txt \
+  && rm /tmp/github_api_key.txt \
+  && echo "export GH_EDITOR=code" >> $HOME/.bashrc \
+  && echo "$(gh completion -s bash)" >> ~/.bashrc
+
 # deploy wakatime API key
 RUN /secrets/secrets.py decrypt --passphrase="$PASSPHRASE" -o /tmp/wakatime_api_key.txt /secrets/wakatime_api_key.txt.gpg \
   && echo "export WAKATIME_API_KEY=$(cat /tmp/wakatime_api_key.txt)" >> $HOME/.bashrc \
